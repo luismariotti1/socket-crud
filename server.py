@@ -72,8 +72,22 @@ def create_data():
 
 
 def read_data():
-    print(db_data)
+    data = "\"["
+    for i in range(len(db_data)):
+        data += str(db_data[i])
+        if i != len(db_data) - 1:
+            data += ', '
+    data += "]\""
     conn.send((200).to_bytes(1, 'big'))
+    conn.send(package_string(data))
+
+
+def package_string(value):
+    return converter_size(value) + value.encode()
+
+
+def converter_size(value):
+    return (len(value)).to_bytes(2, 'big')
 
 
 def update_data(id, data_to_update):
@@ -93,6 +107,7 @@ def update_data(id, data_to_update):
                             if value != '':
                                 db_data[pos][i][key] = value
         conn.send((200).to_bytes(1, 'big'))
+
 
 def delete_data(id):
     pos = find_data_pos(id)

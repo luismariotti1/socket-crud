@@ -1,3 +1,4 @@
+import json
 import socket
 from enum import Enum
 
@@ -99,11 +100,13 @@ while True:
     elif option == OperationOptions.READ.value:
         tcp.send(package_int(option))
 
-        response = tcp.recv(1)
+        status = int.from_bytes(tcp.recv(1), 'big')
+        print(status)
 
-        response = int.from_bytes(response, 'big')
-
-        print(response)
+        size = int.from_bytes(tcp.recv(2), 'big')
+        data = tcp.recv(size).decode()
+        data = json.loads(data)
+        print(data)
 
     elif option == OperationOptions.UPDATE.value:
         op = package_int(OperationOptions.UPDATE.value)
