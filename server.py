@@ -76,16 +76,21 @@ def read_data():
     conn.send((200).to_bytes(1, 'big'))
 
 
-# def update_data(id, data):
-#     find = False
-#     for data in db_data:
-#         if data[0]['id'] == id:
-#             find = True
-#             db_data.remove(data)
-#             conn.send((200).to_bytes(1, 'big'))
-#             return
-#     if not find:
-#         conn.send((404).to_bytes(2, 'big'))
+def update_data(id, data_to_update):
+    pos = find_data_pos(id)
+    if pos != -1:
+        for data_item in data_to_update:
+            for key_to_update, value in data_item.items():
+                for i in range(len(db_data[pos])):
+                    for key in db_data[pos][i]:
+                        if key_to_update == key:
+                            if value == '':
+                                continue
+                            else:
+                                db_data[pos][i][key] = value
+        conn.send((200).to_bytes(1, 'big'))
+    else:
+        conn.send((404).to_bytes(2, 'big'))
 
 
 def delete_data(id):
@@ -110,8 +115,11 @@ while True:
         create_data()
     elif option == OperationOptions.READ.value:
         read_data()
-    # elif option == OperationOptions.UPDATE.value:
-    #     update_data()
+    elif option == OperationOptions.UPDATE.value:
+        data = get_data()
+        id_to_update = data[0]['id']
+        data.pop(0)
+        update_data(id_to_update, data)
     elif option == OperationOptions.DELETE.value:
         data = get_data()
         id_to_delete = data[0]['id']
