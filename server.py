@@ -72,34 +72,36 @@ def create_data():
 
 
 def read_data():
-    data = ''
-    for data in db_data:
-        for item in data:
-            for key, value in item.items():
-                data += f'{key}: {value} '
-        data += ''
-    print(data)
-    # conn.send(data.encode())
-    # conn.send((200).to_bytes(1, 'big'))
+    print(db_data)
+    conn.send((200).to_bytes(1, 'big'))
 
 
-def update_data():
-    data_to_update = get_data()
-    print(data_to_update)
-    # for data in data_to_update:
-    #     print(data)
+# def update_data(id, data):
+#     find = False
+#     for data in db_data:
+#         if data[0]['id'] == id:
+#             find = True
+#             db_data.remove(data)
+#             conn.send((200).to_bytes(1, 'big'))
+#             return
+#     if not find:
+#         conn.send((404).to_bytes(2, 'big'))
 
 
 def delete_data(id):
-    find = False
-    for data in db_data:
-        if data[0]['id'] == id:
-            find = True
-            db_data.remove(data)
-            conn.send((200).to_bytes(1, 'big'))
-            return
-    if not find:
+    pos = find_data_pos(id)
+    if pos != -1:
+        db_data.pop(pos)
+        conn.send((200).to_bytes(1, 'big'))
+    else:
         conn.send((404).to_bytes(2, 'big'))
+
+
+def find_data_pos(id):
+    for i in range(len(db_data)):
+        if db_data[i][0]['id'] == id:
+            return i
+    return -1
 
 
 while True:
@@ -108,8 +110,8 @@ while True:
         create_data()
     elif option == OperationOptions.READ.value:
         read_data()
-    elif option == OperationOptions.UPDATE.value:
-        update_data()
+    # elif option == OperationOptions.UPDATE.value:
+    #     update_data()
     elif option == OperationOptions.DELETE.value:
         data = get_data()
         id_to_delete = data[0]['id']
