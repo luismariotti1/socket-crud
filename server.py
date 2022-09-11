@@ -84,9 +84,7 @@ def update_data(id, data_to_update):
                 for i in range(len(db_data[pos])):
                     for key in db_data[pos][i]:
                         if key_to_update == key:
-                            if value == '':
-                                continue
-                            else:
+                            if value != '':
                                 db_data[pos][i][key] = value
         conn.send((200).to_bytes(1, 'big'))
     else:

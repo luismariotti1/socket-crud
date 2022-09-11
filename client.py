@@ -29,7 +29,11 @@ def package_info(data_type, key, value):
     if data_type == DataTypes.STRING.value:
         value = package_string(value)
     elif data_type == DataTypes.INTEGER.value:
-        value = package_int(int(value))
+        if value != '':
+            value = package_int(int(value))
+        else:
+            data_type = DataTypes.STRING.value
+            value = package_string(value)
 
     data_type = package_int(data_type)
     key = package_string(key)
@@ -113,6 +117,9 @@ while True:
         infos.append(info)
 
         info = package_info(DataTypes.STRING.value, 'type', input('Type of the pokemon: '))
+        infos.append(info)
+
+        info = package_info(DataTypes.INTEGER.value, 'HP', input('HP of the pokemon: '))
         infos.append(info)
 
         data = create_message(op, infos)
