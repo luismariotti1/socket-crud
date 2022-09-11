@@ -1,4 +1,5 @@
 import socket
+import struct
 from enum import Enum
 
 # create tcp socket
@@ -49,6 +50,9 @@ def get_data():
             value = unpack_string()
         elif data_type == DataTypes.INTEGER.value:
             value = int.from_bytes(conn.recv(1), 'big')
+        elif data_type == DataTypes.FLOAT.value:
+            value = struct.unpack('f', conn.recv(4))[0]
+            value = round(value, 2)
 
         data.append({key: value})
         data_type = int.from_bytes(conn.recv(1), 'big')

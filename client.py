@@ -1,5 +1,6 @@
 import json
 import socket
+import struct
 from enum import Enum
 
 # create tcp socket
@@ -35,6 +36,12 @@ def package_info(data_type, key, value):
         else:
             data_type = DataTypes.STRING.value
             value = package_string(value)
+    elif data_type == DataTypes.FLOAT.value:
+        if value != '':
+            value = package_float(float(value))
+        else:
+            data_type = DataTypes.STRING.value
+            value = package_string(value)
 
     data_type = package_int(data_type)
     key = package_string(key)
@@ -44,6 +51,10 @@ def package_info(data_type, key, value):
 
 def package_string(value):
     return converter_size(value) + value.encode()
+
+
+def package_float(value):
+    return struct.pack('f', value)
 
 
 def converter_size(value):
@@ -90,6 +101,9 @@ while True:
         info = package_info(DataTypes.INTEGER.value, 'HP', input('HP of the pokemon: '))
         infos.append(info)
 
+        info = package_info(DataTypes.FLOAT.value, 'attack', input('Attack of the pokemon: '))
+        infos.append(info)
+
         data = create_message(op, infos)
         send_package(data)
 
@@ -123,6 +137,9 @@ while True:
         infos.append(info)
 
         info = package_info(DataTypes.INTEGER.value, 'HP', input('HP of the pokemon: '))
+        infos.append(info)
+
+        info = package_info(DataTypes.FLOAT.value, 'attack', input('Attack of the pokemon: '))
         infos.append(info)
 
         data = create_message(op, infos)
