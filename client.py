@@ -73,6 +73,7 @@ while True:
     option = int(input())
     if option == OperationOptions.CREATE.value:
         op = package_int(OperationOptions.CREATE.value)
+
         infos = []
 
         info = package_info(DataTypes.STRING.value, 'name', input('Name of the pokemon: '))
@@ -85,8 +86,14 @@ while True:
         infos.append(info)
 
         data = create_message(op, infos)
-
         send_package(data)
+
+        response = tcp.recv(1)
+        response = int.from_bytes(response, 'big')
+        print(response)
+
+    elif option == OperationOptions.READ.value:
+        tcp.send(package_int(option))
 
         response = tcp.recv(1)
 
@@ -94,14 +101,34 @@ while True:
 
         print(response)
 
-    elif option == OperationOptions.READ.value:
-        tcp.send(package_int(option))
-
-    elif option == OperationOptions.UPDATE.value:
-        tcp.send(package_int(option))
+    # elif option == OperationOptions.UPDATE.value:
+    #     op = package_int(OperationOptions.UPDATE.value)
+    #     infos = []
+    #
+    #     info = package_info(DataTypes.INTEGER.value, 'id', input('Id of the pokemon: '))
+    #     infos.append(info)
+    #
+    #     # info = package_info(DataTypes.STRING.value, 'name', input('Name of the pokemon: '))
+    #     # infos.append(info)
+    #
+    #     data = create_message(op, infos)
+    #
+    #     send_package(data)
 
     elif option == OperationOptions.DELETE.value:
-        tcp.send(package_int(option))
+        op = package_int(OperationOptions.DELETE.value)
+
+        infos = []
+
+        info = package_info(DataTypes.INTEGER.value, 'id', input('Id of the pokemon to delete: '))
+        infos.append(info)
+
+        data = create_message(op, infos)
+        send_package(data)
+
+        response = tcp.recv(2)
+        response = int.from_bytes(response, 'big')
+        print(response)
 
     elif option == OperationOptions.EXIT.value:
         tcp.send(package_int(option))

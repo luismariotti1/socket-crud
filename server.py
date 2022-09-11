@@ -37,11 +37,9 @@ last_id = 1
 
 # receive size of message
 def get_data():
-    global last_id
-
     data_type = int.from_bytes(conn.recv(1), 'big')
 
-    data = [{'id': last_id}]
+    data = []
 
     while data_type != 0:
         key = unpack_string()
@@ -55,8 +53,6 @@ def get_data():
         data.append({key: value})
         data_type = int.from_bytes(conn.recv(1), 'big')
 
-    last_id += 1
-
     return data
 
 
@@ -66,18 +62,51 @@ def unpack_string():
     return conn.recv(size_message).decode()
 
 
+def create_data():
+    global last_id
+    data = get_data()
+    data.insert(0, {'id': last_id})
+    last_id += 1
+    db_data.append(data)
+    conn.send((201).to_bytes(1, 'big'))
+
+
+def read_data():
+    print(db_data)
+    conn.send((200).to_bytes(1, 'big'))
+
+
+def update_data():
+    data_to_update = get_data()
+    print(data_to_update)
+    # for data in data_to_update:
+    #     print(data)
+
+
+def delete_data(id):
+    find = False
+    for data in db_data:
+        if data[0]['id'] == id:
+            find = True
+            db_data.remove(data)
+            conn.send((200).to_bytes(1, 'big'))
+            return
+    if not find:
+        conn.send((404).to_bytes(2, 'big'))
+
+
 while True:
     option = int.from_bytes(conn.recv(1), 'big')
     if option == OperationOptions.CREATE.value:
-        db_data.append(get_data())
-        conn.send((201).to_bytes(1, 'big'))
+        create_data()
     elif option == OperationOptions.READ.value:
-        print(db_data)
-    # elif option == 3:
-    #     print('Update')
-    # elif option == 4:
-    #     # data.pop()
-    #     print('Delete')
+        read_data()
+    elif option == OperationOptions.UPDATE.value:
+        update_data()
+    elif option == OperationOptions.DELETE.value:
+        data = get_data()
+        id_to_delete = data[0]['id']
+        delete_data(id_to_delete)
     elif option == 5:
         print('Exit')
         break
