@@ -72,8 +72,15 @@ def create_data():
 
 
 def read_data():
-    print(db_data)
-    conn.send((200).to_bytes(1, 'big'))
+    data = ''
+    for data in db_data:
+        for item in data:
+            for key, value in item.items():
+                data += f'{key}: {value} '
+        data += ''
+    print(data)
+    # conn.send(data.encode())
+    # conn.send((200).to_bytes(1, 'big'))
 
 
 def update_data():
