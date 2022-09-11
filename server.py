@@ -78,7 +78,13 @@ def read_data():
 
 def update_data(id, data_to_update):
     pos = find_data_pos(id)
-    if pos != -1:
+    if pos == -2:
+        conn.send((400).to_bytes(2, 'big'))
+        return
+    elif pos == -1:
+        conn.send((404).to_bytes(2, 'big'))
+        return
+    else:
         for data_item in data_to_update:
             for key_to_update, value in data_item.items():
                 for i in range(len(db_data[pos])):
@@ -87,9 +93,6 @@ def update_data(id, data_to_update):
                             if value != '':
                                 db_data[pos][i][key] = value
         conn.send((200).to_bytes(1, 'big'))
-    else:
-        conn.send((404).to_bytes(2, 'big'))
-
 
 def delete_data(id):
     pos = find_data_pos(id)
@@ -101,6 +104,8 @@ def delete_data(id):
 
 
 def find_data_pos(id):
+    if id == '':
+        return -2
     for i in range(len(db_data)):
         if db_data[i][0]['id'] == id:
             return i
